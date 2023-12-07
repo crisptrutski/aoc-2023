@@ -1,0 +1,5 @@
+*.txt
+.cpcache/
+.nrepl-port
+.idea
+*.iml
