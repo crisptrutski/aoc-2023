@@ -17,15 +17,18 @@
 (defn score-card [c]
   (u/index-of c "AKQJT987654321"))
 
+(defn score-hand [fc sc]
+  (u/match-idx
+    (= 5 fc)
+    (= 4 fc)
+    (and (= 3 fc) (= 2 sc))
+    (= 3 fc)
+    (and (= 2 fc) (= 2 sc))
+    (= 2 fc)))
+
 (defn rank-hand [hand]
   (let [[fc sc] (reverse (sort (vals (frequencies hand))))]
-    (u/match-idx
-      (= 5 fc)
-      (= 4 fc)
-      (and (= 3 fc) (= 2 sc))
-      (= 3 fc)
-      (and (= 2 fc) (= 2 sc))
-      (= 2 fc))))
+    (score-hand fc sc)))
 
 (defn rank-bid [[hand score]]
   [(rank-hand hand)
@@ -51,13 +54,7 @@
         num-J (- 5 (count hand-without-J))
         [fc sc] (u/sort-desc (vals (frequencies hand-without-J)))
         fcj (+ num-J (or fc 0))]
-    (u/match-idx
-      (= 5 fcj)
-      (= 4 fcj)
-      (and (= 3 fcj) (= 2 sc))
-      (= 3 fcj)
-      (and (= 2 fcj) (= 2 sc))
-      (= 2 fcj))))
+    (score-hand fcj sc)))
 
 (defn rank-bid-2 [[hand score]]
   [(rank-hand-2 hand)
@@ -73,8 +70,12 @@
        (map-indexed (fn [i [_ _ bid]] (* (inc i) bid)))
        (reduce +)))
 
-(part-1 example)
-(part-1 input)
+(u/printing
+  (part-1 example)
+  (part-1 input))
 
-(part-2 example)
-(part-2 input)
+(println '----)
+
+(u/printing
+  (part-2 example)
+  (part-2 input))
