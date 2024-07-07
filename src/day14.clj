@@ -1,5 +1,7 @@
 (ns day14
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.pprint :as pp]
+   [clojure.string :as str]))
 
 (def example
   "O....#....
@@ -20,16 +22,16 @@ O.#..O.#.#
 
 (defn rolled-positions [column]
   (first
-    (reduce
-      (fn [[sum next-dist] [pos char]]
-        (case char
-          \# [sum (dec pos)]
-          \. [sum next-dist]
-          \O [(+ sum next-dist) (dec next-dist)]))
-      [0 (count column)]
-      (map vector
-           (range (count column) 0 -1)
-           column))))
+   (reduce
+    (fn [[sum next-dist] [pos char]]
+      (case char
+        \# [sum (dec pos)]
+        \. [sum next-dist]
+        \O [(+ sum next-dist) (dec next-dist)]))
+    [0 (count column)]
+    (map vector
+         (range (count column) 0 -1)
+         column))))
 
 (defn rolled-load [columns]
   (reduce + (map rolled-positions columns)))
@@ -43,18 +45,18 @@ O.#..O.#.#
 (defn roll-north* [column]
   (take (count column)
         (concat
-          (first
-            (reduce
-              (fn [[acc spaces] char]
-                (case char
-                  \. [acc (inc spaces)]
-                  \O [(conj acc \O) spaces]
-                  \# [(into acc (concat (repeat spaces \.)
-                                        [\#]))
-                      0]))
-              [[] 0]
-              column))
-          (repeat \.))))
+         (first
+          (reduce
+           (fn [[acc spaces] char]
+             (case char
+               \. [acc (inc spaces)]
+               \O [(conj acc \O) spaces]
+               \# [(into acc (concat (repeat spaces \.)
+                                     [\#]))
+                   0]))
+           [[] 0]
+           column))
+         (repeat \.))))
 
 (defn roll-north [columns]
   (map roll-north* columns))
@@ -65,8 +67,7 @@ O.#..O.#.#
           columns
           (range 4)))
 
-
-(defn t [x] (clojure.pprint/pprint x) x)
+(defn t [x] (pp/pprint x) x)
 
 (defn p [columns]
   (println (str/join "\n" (apply map str columns)))
@@ -75,14 +76,15 @@ O.#..O.#.#
 
 (defn north-load [columns]
   (reduce + (map (fn [col]
-                   ([[reduce]] (fn [s [c i]]
-                             (if (= \O c)
-                               (+ s i)
-                               s))
-                           0
-                           (map vector
-                                col
-                                (range (count col) 0 -1))))
+                   (fn [[reduce]]
+                     (fn [s [c i]]
+                       (if (= \O c)
+                         (+ s i)
+                         s))
+                     0
+                     (map vector
+                          col
+                          (range (count col) 0 -1))))
                  columns)))
 
 (def cycles 1000000000)
@@ -114,18 +116,9 @@ O.#..O.#.#
       roll-cycle p
       roll-cycle p))
 
-
-
 (comment
   (part1 example)
   (part1 input)
 
   (part2 example)
   (part2 input))
-
-
-
-
-
-
-

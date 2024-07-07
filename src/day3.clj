@@ -33,22 +33,22 @@
 (defn parse-with-pos [keep-char? parse-str lines]
   (mapcat identity
           (map-indexed
-            (fn [y line]
-              (->> (str/trim line)
-                   (map-indexed id-pair)
-                   (partition-by (comp keep-char? last))
-                   (keep
-                     (fn [pairs]
-                       (if-let [num (parse-str (apply str (map second pairs)))]
-                         [num
-                          (set (for [x (map first pairs)] [y x]))])))))
-            lines)))
+           (fn [y line]
+             (->> (str/trim line)
+                  (map-indexed id-pair)
+                  (partition-by (comp keep-char? last))
+                  (keep
+                   (fn [pairs]
+                     (if-let [num (parse-str (apply str (map second pairs)))]
+                       [num
+                        (set (for [x (map first pairs)] [y x]))])))))
+           lines)))
 
 (defn positions [keep-char? lines]
   (->> lines
        (parse-with-pos
-         #(if (keep-char? %) (get-id!))
-         (comp keep-char? first))
+        #(when (keep-char? %) (get-id!))
+        (comp keep-char? first))
        (map second)
        (mapcat identity)))
 
@@ -86,10 +86,10 @@
          (map (fn [[x y]]
                 (let [adj? (set (adjacent x y))]
                   (keep
-                    (fn [[part-num xys]]
-                      (if (some adj? xys)
-                        part-num))
-                    nums-and-pos))))
+                   (fn [[part-num xys]]
+                     (if (some adj? xys)
+                       part-num))
+                   nums-and-pos))))
          (filter (comp #{2} count))
          (map (partial apply *))
          (reduce +))))

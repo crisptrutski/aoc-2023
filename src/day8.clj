@@ -1,6 +1,7 @@
 (ns day8
-  (:require [clojure.string :as str]
-            [utils :as u]))
+  (:require
+   [clojure.string :as str]
+   [utils :as u]))
 
 (def example-1
   "RL
@@ -38,7 +39,7 @@
     (case dir
       \L left
       \R right
-      :else (throw (ex-info (str "Unexpected direction: " dir) {})))))
+      :else (throw (ex-info (str "Unexpected direction: " dir) {:dir dir})))))
 
 (defn parse [i]
   (let [[dirs & body] (remove empty? (u/lines i))
@@ -81,8 +82,10 @@
         lengths (map ghost-length starts)]
     (reduce u/lcm lengths)))
 
+
 (comment
   (u/printing
+   (part-1 example-1)
    (part-1 example-2)
    (part-1 input))
 
