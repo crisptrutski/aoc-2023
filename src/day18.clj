@@ -1,6 +1,7 @@
 (ns day18
-  (:require [clojure.string :as str]
-            [utils :as u]))
+  (:require
+   [clojure.string :as str]
+   [utils :as u]))
 
 (def example
   "R 6 (#70c710)
@@ -45,24 +46,24 @@ U 2 (#7a21e3)")
 
 (defn- dig-trenches* [dig instructions]
   (first (reduce
-           (fn [state instruction]
-             (reduce
-               (fn [[holes _] pos]
-                 [(conj holes pos) pos])
-               state
-               (dig (second state) instruction)))
-           #_[#{[0 0]} [0 0]]
-           [[[0 0]] [0 0]]
-           instructions)))
+          (fn [state instruction]
+            (reduce
+             (fn [[holes _] pos]
+               [(conj holes pos) pos])
+             state
+             (dig (second state) instruction)))
+          #_[#{[0 0]} [0 0]]
+          [[[0 0]] [0 0]]
+          instructions)))
 
 (defn- dig-line [pos [dir len _]]
   (first
-    (reduce
-      (fn [[line pos] _]
-        (let [pos' (move pos dir)]
-          [(conj line pos') pos']))
-      [[] pos]
-      (range len))))
+   (reduce
+    (fn [[line pos] _]
+      (let [pos' (move pos dir)]
+        [(conj line pos') pos']))
+    [[] pos]
+    (range len))))
 
 (defn- dig-trenches [instructions]
   (dig-trenches* dig-line instructions))
@@ -72,17 +73,17 @@ U 2 (#7a21e3)")
 
 #_(defn- fill-row [row]
     (first
-      (reduce
-        (fn [[acc inside? last?] dug?]
-          (let [inside? (cond
-                          (and last? dug?) inside?
-                          dug? (not inside?)
-                          :else inside?)]
-            [(conj acc (or inside? dug?))
-             inside?
-             dug?]))
-        [[] false false]
-        row)))
+     (reduce
+      (fn [[acc inside? last?] dug?]
+        (let [inside? (cond
+                        (and last? dug?) inside?
+                        dug? (not inside?)
+                        :else inside?)]
+          [(conj acc (or inside? dug?))
+           inside?
+           dug?]))
+      [[] false false]
+      row)))
 
 ;; Too naive
 #_(defn fill-interior [grid]
@@ -134,10 +135,10 @@ U 2 (#7a21e3)")
                      (filter (every-pred range? new? ground?)
                              (distinct (mapcat neighbours next)))))))))
     (reduce
-      (fn [grid [id positions]]
-        (reduce #(assoc-in %1 %2 id) grid positions))
-      @result
-      @mapping)))
+     (fn [grid [id positions]]
+       (reduce #(assoc-in %1 %2 id) grid positions))
+     @result
+     @mapping)))
 
 (defn holes->grid [holes]
   (let [xs    (map second holes)
@@ -150,12 +151,12 @@ U 2 (#7a21e3)")
         h     (inc (- max-y min-y))
         grid  (vec (repeat h (vec (repeat w false))))]
     (reduce
-      (fn [holes [y x]]
-        (let [i (- y min-y)
-              j (- x min-x)]
-          (assoc-in holes [i j] true)))
-      grid
-      holes)))
+     (fn [holes [y x]]
+       (let [i (- y min-y)
+             j (- x min-x)]
+         (assoc-in holes [i j] true)))
+     grid
+     holes)))
 
 (defn- print-grid [grid]
   (dorun (mapv (fn [row]
@@ -220,8 +221,7 @@ U 2 (#7a21e3)")
 
 (comment
   (-> example parse dig-hex-trenches count)
-  (-> example parse dig-hex-trenches holes->grid count)
-  )
+  (-> example parse dig-hex-trenches holes->grid count))
 
 (defn- fast-area [text intersections]
   (-> text parse intersections shoelace-area))
