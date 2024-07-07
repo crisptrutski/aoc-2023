@@ -19,7 +19,7 @@ U 3 (#a77fa3)
 L 2 (#015232)
 U 2 (#7a21e3)")
 
-(def input (slurp "18.txt"))
+(def input "" #_(slurp "18.txt"))
 
 (defn parse-line [line]
   (let [[_ dir len col] (re-matches #"(\w) (\d*) \(#([0-9a-f]*)\)" line)]
@@ -71,24 +71,6 @@ U 2 (#7a21e3)")
 (defn- area [grid]
   (reduce + (mapcat #(map (fn [c] (if c 1 0)) %) grid)))
 
-#_(defn- fill-row [row]
-    (first
-     (reduce
-      (fn [[acc inside? last?] dug?]
-        (let [inside? (cond
-                        (and last? dug?) inside?
-                        dug? (not inside?)
-                        :else inside?)]
-          [(conj acc (or inside? dug?))
-           inside?
-           dug?]))
-      [[] false false]
-      row)))
-
-;; Too naive
-#_(defn fill-interior [grid]
-    (mapv fill-row grid))
-
 (defn- neighbours [[i j]]
   [[(inc i) j]
    [(dec i) j]
@@ -112,16 +94,13 @@ U 2 (#7a21e3)")
         ground?  (comp not dug?)
         result   (volatile! grid)]
     (doseq [i (range h)
-            ;:let [_ (println "row:" i)]
             j (range w)
             :let [pos [i j]]
             :when (and (ground? pos)
                        (not (@visited? pos)))
             :let [id (vswap! next-id inc)]]
-      ;(println "id:" id "pos:" pos)
       (loop [exterior? false
              next      [pos]]
-        ;(println "visited count:" (count @visited?) "next count: " (count next))
         (when (seq next)
           (vswap! visited? into next)
           (let [just-opened? (when-not exterior? (some edge? next))
@@ -172,12 +151,6 @@ U 2 (#7a21e3)")
   (->> (u/lines text)
        (mapv #(mapv #{\#} %))))
 
-(comment
-  (-> example parse dig-trenches holes->grid print-grid)
-  (-> example parse dig-trenches holes->grid fill-interior print-grid)
-  (-> example parse dig-trenches holes->grid area)
-  (-> example parse dig-trenches holes->grid fill-interior area))
-
 (defn part1 [text]
   (-> text
       parse
@@ -214,14 +187,7 @@ U 2 (#7a21e3)")
                        (partition 2 1)
                        (map #(apply utils/manhattan %))
                        (reduce +))]
-    ;(mapv println positions)
-    ;(println xs)
-    ;(println ys)
     (inc (quot (+ laced perimeter) 2))))
-
-(comment
-  (-> example parse dig-hex-trenches count)
-  (-> example parse dig-hex-trenches holes->grid count))
 
 (defn- fast-area [text intersections]
   (-> text parse intersections shoelace-area))
