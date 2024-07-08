@@ -1,5 +1,6 @@
 (ns day15
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 (def example "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7")
 
@@ -21,13 +22,13 @@
 
 (defn replace-lens [lenses label focal-length]
   (reduce
-    (fn [acc lens]
-      (conj acc
-            (if (= label (first lens))
-              [label focal-length]
-              lens)))
-    []
-    lenses))
+   (fn [acc lens]
+     (conj acc
+           (if (= label (first lens))
+             [label focal-length]
+             lens)))
+   []
+   lenses))
 
 (defn sum-box [[box-num lenses]]
   (* (inc box-num)
@@ -73,5 +74,3 @@
 
   (part2 example)
   (part2 input))
-
-

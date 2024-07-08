@@ -1,5 +1,6 @@
 (ns day7
-  (:require [utils :as u]))
+  (:require
+   [utils :as u]))
 
 (def example
   "32T3K 765
@@ -19,12 +20,12 @@
 
 (defn score-hand [fc sc]
   (u/match-idx
-    (= 5 fc)
-    (= 4 fc)
-    (and (= 3 fc) (= 2 sc))
-    (= 3 fc)
-    (and (= 2 fc) (= 2 sc))
-    (= 2 fc)))
+   (= 5 fc)
+   (= 4 fc)
+   (and (= 3 fc) (= 2 sc))
+   (= 3 fc)
+   (and (= 2 fc) (= 2 sc))
+   (= 2 fc)))
 
 (defn rank-hand [hand]
   (let [[fc sc] (reverse (sort (vals (frequencies hand))))]
@@ -71,11 +72,11 @@
        (reduce +)))
 
 (u/printing
-  (part-1 example)
-  (part-1 input))
+ (part-1 example)
+ (part-1 input))
 
 (println '----)
 
 (u/printing
-  (part-2 example)
-  (part-2 input))
+ (part-2 example)
+ (part-2 input))

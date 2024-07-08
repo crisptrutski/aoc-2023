@@ -1,5 +1,6 @@
 (ns day5
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 (def example
   "seeds: 79 14 55 13
@@ -65,14 +66,14 @@
     (into {} (mapcat parse-range ranges)))
 
 #_(defn parse-mappings [remaining-lines]
-  (->> (map str/trim remaining-lines)
-       (partition-by #{""})
-       (remove #{'("")})
-       (map (fn [[label & ranges]]
-              [(parse-label label)
-               (into {} (parse-mapping ranges))]))
-       (map second)
-       (map (fn [hsh] #(get hsh %1 %1)))))
+    (->> (map str/trim remaining-lines)
+         (partition-by #{""})
+         (remove #{'("")})
+         (map (fn [[label & ranges]]
+                [(parse-label label)
+                 (into {} (parse-mapping ranges))]))
+         (map second)
+         (map (fn [hsh] #(get hsh %1 %1)))))
 
 (defn parse-mapping [ranges]
   (->> (map parse-triple ranges)
@@ -95,11 +96,11 @@
     (reduce min (reduce (fn [ids mapping] (map mapping ids)) seeds mappings))))
 
 #_(defn parse-seed-ranges [seed-line]
-  (->> (str/split seed-line #"\s+")
-       (map parse-long)
-       (remove nil?)
-       (partition 2)
-       (mapcat (fn [[start len]] (range start (+ start len))))))
+    (->> (str/split seed-line #"\s+")
+         (map parse-long)
+         (remove nil?)
+         (partition 2)
+         (mapcat (fn [[start len]] (range start (+ start len))))))
 
 (defn check-ranges [pairs]
   (fn [x]
@@ -130,7 +131,6 @@
        (map rest)
        (map parse-reverse-mapping)))
 
-
 (defn part-2 [input]
   (let [[first-line & remaining-lines] (str/split-lines input)
         initial? (seed-checker first-line)
@@ -151,9 +151,7 @@
   (map test-reverse-mapping (rest (range 14)))
 
   (map test-mapping (map test-reverse-mapping (rest (range 14))))
-  (map test-reverse-mapping (map test-mapping (rest (range 14))))
-
-  )
+  (map test-reverse-mapping (map test-mapping (rest (range 14)))))
 
 (part-1 example)
 (part-1 input)

@@ -1,5 +1,6 @@
 (ns day11
-  (:require [utils :as u]))
+  (:require
+   [utils :as u]))
 
 (def example
   "...#......
@@ -52,10 +53,10 @@
 
 (defn find-galaxies [grid]
   (vec
-    (for [i (range (count grid))
-          j (range (count (first grid)))
-          :when (= \# (u/get-2d grid i j))]
-      [i j])))
+   (for [i (range (count grid))
+         j (range (count (first grid)))
+         :when (= \# (u/get-2d grid i j))]
+     [i j])))
 
 (defonce input (slurp "11.txt"))
 
@@ -69,10 +70,10 @@
 
 (defn blank-rows [grid]
   (keep-indexed
-    (fn [i row]
-      (when (blank-row? row)
-        i))
-    grid))
+   (fn [i row]
+     (when (blank-row? row)
+       i))
+   grid))
 
 (defn galaxy-distance [time blank-row? blank-col? [[i1 j1] [i2 j2]]]
   ;; make sure that i1 <= i2 and j1 <= j2
@@ -83,7 +84,6 @@
         i-dist (u/sum (map #(if (blank-row? (+ i1 %)) time 1) dis))
         j-dist (u/sum (map #(if (blank-col? (+ j1 %)) time 1) djs))]
     (+ i-dist j-dist)))
-
 
 (defn part-2
   ([i]
@@ -96,8 +96,8 @@
          pos-pairs (galaxy-pairs galaxies)]
 
      #_(clojure.pprint/pprint
-       (into (sorted-map)
-             (zipmap
+        (into (sorted-map)
+              (zipmap
                (map #(mapv inc %) (pairs-upper (count galaxies)))
                (map (partial galaxy-distance time blank-row? blank-col?) pos-pairs))))
 

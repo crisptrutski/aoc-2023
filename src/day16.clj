@@ -1,7 +1,8 @@
 (ns day16
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
-(def example 
+(def example
   ".|...\\....
 |.-.\\.....
 .....|-...
@@ -67,12 +68,12 @@
 
 (defn- propagate [pos dirs mapping]
   (reduce
-    (fn [beams [in out]]
-      (if (traveling? dirs in)
-        (add-beam beams pos out)
-        beams))
-    {}
-    mapping))
+   (fn [beams [in out]]
+     (if (traveling? dirs in)
+       (add-beam beams pos out)
+       beams))
+   {}
+   mapping))
 
 (defn- next-beams [grid activations [[y x :as pos] dirs]]
   (->> (case (get-in grid pos)
@@ -101,12 +102,12 @@
   "Calculate any novel positions the beams travel next, and update the activations"
   [grid [activations beams]]
   (reduce
-    (fn [[acc-tivations acc-beams] beam]
-      (let [triggered-beams (next-beams grid acc-tivations beam)]
-        [(track-beams acc-tivations triggered-beams)
-         (merge-with bit-or acc-beams triggered-beams)]))
-    [activations {}]
-    beams))
+   (fn [[acc-tivations acc-beams] beam]
+     (let [triggered-beams (next-beams grid acc-tivations beam)]
+       [(track-beams acc-tivations triggered-beams)
+        (merge-with bit-or acc-beams triggered-beams)]))
+   [activations {}]
+   beams))
 
 (defn- activations-fixed-point [step-once state]
   (loop [state state]

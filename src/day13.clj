@@ -1,6 +1,6 @@
 (ns day13
   (:require
-    [clojure.string :as str]))
+   [clojure.string :as str]))
 
 (defonce example
   "#.##..##.
@@ -55,8 +55,8 @@
 ;; Score a grid based on the position of the row and/or column reflections
 (defn score-row [[row col]]
   (cond-> 0
-          row (+ row)
-          col (+ (* 100 col))))
+    row (+ row)
+    col (+ (* 100 col))))
 
 (defn part-1 [s]
   (->> (chunk-grids s)

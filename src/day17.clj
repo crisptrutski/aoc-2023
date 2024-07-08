@@ -1,5 +1,6 @@
 (ns day17
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 (def example 
   "2413432311323

@@ -1,5 +1,6 @@
 (ns day9
-  (:require [utils :as u]))
+  (:require
+   [utils :as u]))
 
 (def example
   "0 3 6 9 12 15

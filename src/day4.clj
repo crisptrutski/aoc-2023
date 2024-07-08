@@ -1,5 +1,6 @@
 (ns day4
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 (def example
   "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
@@ -22,47 +23,47 @@
 (parse-line "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53")
 
 (defn count-matches [winning actual]
-(count (keep (set winning) actual)))
+  (count (keep (set winning) actual)))
 
 (defn score-line [[winning actual]]
-(let [c (count-matches winning actual)]
-  (if (pos? c) (long (Math/pow 2 (dec c))) 0)))
+  (let [c (count-matches winning actual)]
+    (if (pos? c) (long (Math/pow 2 (dec c))) 0)))
 
 (defn part-1 [input]
-(->> input
-     (str/split-lines)
-     (map parse-line)
-     (map score-line)
-     (reduce +)))
+  (->> input
+       (str/split-lines)
+       (map parse-line)
+       (map score-line)
+       (reduce +)))
 
 (seq '())
 
 (defn map-all [f xs ys]
-(if (or (seq xs) (seq ys))
-  (let [[x & xs] xs
-        [y & ys] ys]
-    (lazy-seq
-      (cons (f x y)
-            (map-all f xs ys))))))
+  (if (or (seq xs) (seq ys))
+    (let [[x & xs] xs
+          [y & ys] ys]
+      (lazy-seq
+       (cons (f x y)
+             (map-all f xs ys))))))
 
 (defn calc-round [[total-count upcoming-counts] next-card]
-(let [[winning actual] next-card
-      [this-copies & following-counts] (or upcoming-counts [0])
-      this-count (inc this-copies)
-      additional-cards (count (keep (set winning) actual))
-      additional-counts (repeat additional-cards this-count)
-      total-count (+ total-count this-count)
-      upcoming-counts (map-all (fnil + 0 0)
-                               following-counts
-                               additional-counts)]
-  [total-count upcoming-counts]))
+  (let [[winning actual] next-card
+        [this-copies & following-counts] (or upcoming-counts [0])
+        this-count (inc this-copies)
+        additional-cards (count (keep (set winning) actual))
+        additional-counts (repeat additional-cards this-count)
+        total-count (+ total-count this-count)
+        upcoming-counts (map-all (fnil + 0 0)
+                                 following-counts
+                                 additional-counts)]
+    [total-count upcoming-counts]))
 
 (defn part-2 [input]
-(->> input
-     (str/split-lines)
-     (map parse-line)
-     (reduce calc-round [0 nil])
-     (first)))
+  (->> input
+       (str/split-lines)
+       (map parse-line)
+       (reduce calc-round [0 nil])
+       (first)))
 
 ;; ----------
 
