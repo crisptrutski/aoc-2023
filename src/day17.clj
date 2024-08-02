@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]))
 
-(def example 
+(def example
   "2413432311323
 3215453535623
 3255245654254
@@ -67,11 +67,11 @@
 
 (defn- next-dirs [dir repeat]
   (cond-> []
-          (or (nil? dir) (>= repeat min-repeats))
-          (into (turns dir))
+    (or (nil? dir) (>= repeat min-repeats))
+    (into (turns dir))
 
-          (and (some? dir) (< repeat max-repeats))
-          (conj dir)))
+    (and (some? dir) (< repeat max-repeats))
+    (conj dir)))
 
 (def next-dirs (memoize next-dirs))
 
@@ -110,9 +110,9 @@
   "Have we seen this state, or  better one, before?"
   [best {:keys [pos dir repeat loss]}]
   (some
-    #(when-let [prev-loss (get-in best [pos dir %])]
-       (>= loss prev-loss))
-    (range repeat (dec min-repeats) -1)))
+   #(when-let [prev-loss (get-in best [pos dir %])]
+      (>= loss prev-loss))
+   (range repeat (dec min-repeats) -1)))
 
 (comment
   (redundant? {[0 0] {:u {1 29}}}
@@ -126,13 +126,13 @@
     best
     ;; remove certainly-inferior states
     (reduce
-      (fn [acc r]
-        (or (when-let [prev-loss (get-in best [pos dir r])]
-              (when (>= prev-loss loss)
-                (update-in acc [pos dir] dissoc r)))
-            acc))
-      (assoc-in best [pos dir repeat] loss)
-      (range (max (inc min-repeats) (inc repeat)) max-repeats))))
+     (fn [acc r]
+       (or (when-let [prev-loss (get-in best [pos dir r])]
+             (when (>= prev-loss loss)
+               (update-in acc [pos dir] dissoc r)))
+           acc))
+     (assoc-in best [pos dir repeat] loss)
+     (range (max (inc min-repeats) (inc repeat)) max-repeats))))
 
 (comment
   (update-best {[0 0] {:u {1 29}}}
@@ -147,7 +147,6 @@
    :dir    nil
    :repeat 0
    :loss   0})
-
 
 (defn best-loss [grid best]
   (let [h (count grid)
@@ -171,11 +170,11 @@
       (if (zero? max-iters)
         (do (prn :too-many-steps)
             (clojure.pprint/pprint
-              (clojure.walk/postwalk
-                #(if (map? %)
-                   (into (sorted-map) %)
-                   %)
-                best)))
+             (clojure.walk/postwalk
+              #(if (map? %)
+                 (into (sorted-map) %)
+                 %)
+              best)))
         (if-let [next-states' (->> next-states
                                    (mapcat (partial step grid))
                                    (remove nil?)

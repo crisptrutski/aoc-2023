@@ -55,7 +55,9 @@
   [[y1 x1] [y2 x2]]
   (+ (abs (- x2 x1)) (abs (- y2 y1))))
 
-(defmacro match-idx [& preds]
+(defmacro match-idx
+  "Given a list of predicates, turn the index of the first predicate that passes."
+  [& preds]
   (let [indexed (map-indexed (fn [i p] [p i]) preds)]
     `(cond ~@(concat (apply concat indexed) [:else (count preds)]))))
 
