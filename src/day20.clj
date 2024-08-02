@@ -10,6 +10,7 @@
    %c -> inv
    &inv -> a")
 
+<<<<<<< HEAD
 (def example-2
   "broadcaster -> a
    %a -> inv, con
