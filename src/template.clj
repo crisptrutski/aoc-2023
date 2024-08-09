@@ -1,10 +1,11 @@
 (ns template
-  (:require [utils :as u]))
+  (:require
+   [utils :as u]))
 
 (def example
   "")
 
-(def input (slurp "DAY.txt"))
+(def input nil #_(slurp "DAY.txt"))
 
 
 (defn part-1 [i])

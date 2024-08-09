@@ -80,24 +80,32 @@ hdj{m>838:A,pv}
          (map (comp sum-part second))
          (reduce +))))
 
+
+
 (defn pred->range [r]
-  (let [c (second r)
-        n (parse-long (subs r 2))]
-    (case c
-      \> {:min (inc n) :max max-range}
-      \< {:min 1 :max (dec n)}
-      \= {:min n :max n})))
+  (if-not r
+    ["x" {:min 1 :max max-range}]
+    (let [c (second r)
+          n (parse-long (subs r 2))]
+      [(first r)
+       (case c
+         \> {:min (inc n) :max max-range}
+         \< {:min 1 :max (dec n)}
+         \= {:min n :max n})])))
 
 (defn invert-constraint [r]
-  (let [c (second r)
-        n (parse-long (subs r 2))]
-    (case c
-      \> [{:min 1 :max n}]
-      \< [{:min n :max max-range}]
-      \= [{:min 1 :max (dec n)}
-          {:min (inc n) :max max-range}])))
+  ;; currently gets a range, not a raw constraint
+  (when r
+    (let [c (second r)
+          n (parse-long (subs r 2))]
+      [(first r)
+       (case c
+         \> [{:min 1 :max n}]
+         \< [{:min n :max max-range}]
+         \= [{:min 1 :max (dec n)}
+             {:min (inc n) :max max-range}])])))
 
-(defn- combine-constraints [cs]
+(defn- union-constraints [cs]
   (->> cs
        (remove nil?)
        (sort-by :min)
@@ -109,14 +117,44 @@ hdj{m>838:A,pv}
          [[] {:min 0 :max 0}])
        (apply conj)
        rest
-       (remove nil?)))
+       (remove nil?)
+       vec))
 
-(combine-constraints [{:min 1 :max 10} {:min 8 :max 12} {:min 14 :max 14} {:min 20 :max 300} {:min 30 :max 40}])
+(defn- intersect-constraints [cs]
+  (reduce (fn [acc x]
+            {:min (max (:min acc) (:min x))
+             :max (min (:max acc) (:max x))})
+          {:min 1 :max max-range}
+          cs))
+
+(defn- intersect [xmasses]
+  (zipmap "xmas"
+          (for [k "xmas"]
+            (intersect-constraints (keep #(% k) xmasses)))))
+
+(comment
+  (union-constraints [{:min 1 :max 10}
+                      {:min 8 :max 12}
+                      {:min 14 :max 14}
+                      {:min 20 :max 300}
+                      {:min 30 :max 40}])
+
+  (union-constraints [{:min 1 :max 10}
+                      {:min 8 :max 12}
+                      {:min 14 :max 14}
+                      {:min 20 :max 300}
+                      {:min 30 :max 40}])
+
+  (intersect-constraints [{:min 1 :max 20}
+                          {:min 15 :max 30}])
+
+  (intersect [{\x {:min 1 :max 20}}
+              {\a {:min 15 :max 30}}]))
 
 (defn merge-constraints [xs ys]
-  (combine-constraints
-    (for [{mnx :min mxx :max} xs
-          {mny :min mxy :max} ys
+  (union-constraints
+    (for [{mnx :min mxx :max} (or xs [{:min 1 :max max-range}])
+          {mny :min mxy :max} (or ys [{:min 1 :max max-range}])
           :when (and (<= mnx mxy)
                      (<= mny mxx))]
       {:min (max mnx mny)
@@ -125,10 +163,78 @@ hdj{m>838:A,pv}
 (defn- count-range [{mn :min mx :max}]
   (max 0 (inc (- mx mn))))
 
-(defn rule->dispatches [constraints rule]
-  (reductions
+(defn- count-ranges [rs]
+  (if-not rs
+    max-range
+    (reduce + (map count-range rs))))
 
-    ))
+(defn- count-cs [c->cs]
+  (->> (map c->cs "xmas")
+       (map count-ranges)
+       (reduce *)))
+
+(defn ranges->dispatches [rs]
+  (mapv (comp vec rest rest)
+        (rest
+          (reductions
+            (fn [[cs last-tc _ _] {:keys [pred target]}]
+              (let [last-inv   (invert-constraint last-tc)
+                    curr-range (pred->range pred)
+                    prior      (when last-inv
+                                 (update cs
+                                         (first last-inv)
+                                         #(merge-constraints %
+                                                             (second last-inv))))
+                    curr-cs    (update prior
+                                       (first curr-range)
+                                       #(merge-constraints %
+                                                           [(second curr-range)]))]
+                [prior
+                 pred
+                 curr-cs
+                 target]))
+            ;; constraints, target
+            [{} nil nil]
+            rs))))
+
+(defn step [[target->constraints constraints->targets] rules]
+  (merge-with + target->constraints
+              (into {}
+                    (for [[cs target] constraints->targets]
+                      nil))))
+
+(defn flappy
+  "Flip and apply - cycles the last argument to the first position."
+  [f & xs]
+  (apply f (last xs) (butlast xs)))
+
+(defn- infer-sinks
+  "Given a map from every entry point to all the rules that dispatch from it,
+  return a map of the final destinations to the combined constraints of all
+  the routes which lead to it."
+  [in->dispatches]
+  (loop [target->routes {}
+         inbound        [["in" nil]]]
+    (if-not (seq inbound)
+      target->routes
+      (recur
+        (reduce
+          (fn [acc [target cs]]
+            (merge-with concat
+                        acc
+                        ;; TODO we only need to register stuff going to A really
+                        nil))
+          target->routes
+          inbound)
+        ;; next outbound
+        nil))))
+
+(defn routes->disjoint
+  "Given a seq of constraint corresponding to all the routes somewhere, break
+  them up into disjoint sets so that we can calculate the viable combinations."
+  [routes-cs])
+
+
 
 (defn part-2 [i]
   ;; from in, use reductions to build the revised constraints + jump target
@@ -137,13 +243,15 @@ hdj{m>838:A,pv}
   (let [[workflows _] (str/split i #"\n\n")]
     (->> (str/split-lines workflows)
          (map parse-workflow)
-         (map :rules)
-
-
-
-
-         prn
-         (reduce *)))
+         (into {} (map (juxt :name :rules)))
+         (flappy update-vals ranges->dispatches)
+         ;clojure.pprint/pprint
+         infer-sinks
+         (flappy get "A")
+         routes->disjoint
+         (map count-cs)
+         (reduce +)
+         ))
 
 
   ;; we are calculating how many combinations satisfy *all* the rules
@@ -153,17 +261,15 @@ hdj{m>838:A,pv}
   ;; and sum over all those chains
   ;; remembering to take the complement of the rules we must pass over
   #_(let [[workflows _] (str/split i #"\n\n")]
-    (->> (str/split-lines workflows)
-         (map parse-workflow)
-         (map :rules)
-         (mapcat (partial keep :pred))
-         (group-by first)
-         (vals)
-         (mapv #(count-range (collapse-ranges (map pred->range %))))
-         prn
-         (reduce *))))
-
-(part-2 example)
+      (->> (str/split-lines workflows)
+           (map parse-workflow)
+           (map :rules)
+           (mapcat (partial keep :pred))
+           (group-by first)
+           (vals)
+           (mapv #(count-range (collapse-ranges (map pred->range %))))
+           prn
+           (reduce *))))
 
 (comment
   (part-1 example)

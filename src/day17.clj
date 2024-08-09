@@ -195,7 +195,7 @@
 (defn part2 [input]
   (alter-var-root (resolve 'min-repeats) (constantly 3))
   (alter-var-root (resolve 'max-repeats) (constantly 10))
-  (prn min-repeats max-repeats)
+  #_(prn min-repeats max-repeats)
   (solve-generic input))
 
 (comment
