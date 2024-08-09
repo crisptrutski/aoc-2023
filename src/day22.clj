@@ -1,7 +1,8 @@
 (ns day22
   (:require
    [clojure.string :as str]
-   [utils :as u]))
+   [utils :as u]
+   [clojure.set :as set]))
 
 (def example
   "1,0,1~1,2,1
@@ -23,6 +24,11 @@
   (conj (range a b (dir a b)) a b))
 
 (defn- fill-bricks [[[x1 y1 z1 :as p1] [x2 y2 z2 :as p2]]]
+  (assert (> 2 (+ (if (= x1 x2) 0 1)
+                  (if (= y1 y2) 0 1)
+                  (if (= z2 z2) 0 1)))
+          "no diagonals")
+
   (into (sorted-set)
    (for [x (range-incl x1 x2)
          y (range-incl y1 y2)
@@ -40,17 +46,120 @@
 (defn parse [s]
   (mapv parse-brick (str/split-lines s)))
 
-(prn (parse example))
+(defn highest-point
+  "Find the highest point in the surface at given x and y coordinates."
+  [surface x y]
+  (get surface [x y] {:id nil :z 0}))
+
+(defn update-surface
+  "Update the surface with new brick positions."
+  [surface id z' bricks]
+  (reduce (fn [m [x y _]]
+            (assoc m [x y] {:id id :z z'}))
+          surface
+          bricks))
+
+(defn step
+  "Process a single step in the brick-stacking simulation.
+
+   Takes the current state (surface and supporting information) and a brick,
+   and returns the updated state after placing the brick.
+
+   Args:
+     state: A map containing :surface and :supporting
+     brick: A map containing :id and :bricks (list of coordinates)
+
+   Returns:
+     Updated state map with new surface and supporting information."
+  [{:keys [surface _supporting] :as state} {:keys [id bricks]}]
+  (let [[[_ _ z1] [_ _ z2]] [(first bricks) (last bricks)]
+        {support-z :z support-ids :ids}
+        (reduce
+         (fn [{:keys [z ids] :as acc} [x y _]]
+           (let [{surface-id :id surface-z :z} (highest-point surface x y)]
+             (cond
+               (> surface-z z) {:z surface-z :ids #{surface-id}}
+               (= surface-z z) (update acc :ids conj surface-id)
+               :else           acc)))
+         {:z 0 :ids #{}}
+         bricks)
+        z' (+ support-z 1 (Math/abs (- z2 z1)))]
+    (-> state
+        (update :surface update-surface id z' bricks)
+        (assoc-in [:supporting id] support-ids))))(defn highest-point [surface x y]
+  (get surface [x y] {:brick nil :z 0}))
+
+(defn supporting-nothing [supporting]
+  (->> (keys supporting)
+       (remove (into #{}
+                     (comp (filter #(= 1 (count %)))
+                           (map first))
+                     (vals supporting)))))
+
+(defn step
+  [{:keys [surface supporting]}
+   {:keys [id bricks]}]
+  (let [support (reduce
+                 (fn [{:keys [z ids] :as acc} [x y _]]
+                   (let [{surface-id :id surface-z :z} (highest-point surface x y)]
+                     (cond
+                       (> surface-z z) {:z surface-z :ids [surface-id]}
+                       (= surface-z z) {:z surface-z :ids (conj ids surface-id)}
+                       :else           acc)))
+                 {:z 0 :ids []}
+                 bricks)
+        z' (+ (:z support)
+              1
+              (Math/abs (- (last (last bricks))
+                           (last (first bricks)))))
+        surface' (reduce (fn [m [x y _]]
+                            (assoc m [x y] {:id id :z z'}))
+                         surface
+                         bricks)]
+    {:surface surface'
+     :supporting (assoc supporting id (set (:ids support)))}))
+
+(defn- support-map [s]
+  (->> (parse s)
+       (sort-by #(reduce min (map last %)))
+       (map #(hash-map :id %1 :bricks %2) (map #(char (+ % (int \a))) (range)))
+       (reduce step nil)
+       :supporting))
 
 (defn part-1 [s]
-  )
+  (count (supporting-nothing (support-map s))))
+
+(defn- cascade-size [supporting starting]
+  (loop [max-depth 20000
+         disintegrated #{starting}
+         remaining (remove (comp disintegrated first) supporting)]
+    (if (zero? max-depth)
+      -1
+      (if-let [non-supporting (not-empty (into #{}
+                                               (comp
+                                                (filter (fn [[_ supported-by]]
+                                                          (every? disintegrated supported-by)))
+                                                (map first))
+                                               remaining))]
+        (recur (dec max-depth)
+               (set/union disintegrated non-supporting)
+               (remove (comp non-supporting first) remaining))
+        (dec (count disintegrated))))))
+
+(defn sum-cascades [supporting]
+  (reduce + (map
+             #(cascade-size supporting %)
+             (remove (set (supporting-nothing supporting))
+                     (map first supporting)))))
 
 (defn part-2 [s]
-  )
+  (sum-cascades (support-map s)))
 
 (comment
   (part-1 example)
+  ;; 1359 -> too high
   (part-1 input)
 
   (part-2 example)
+  ;; 1250 - too low
   (part-2 input))
