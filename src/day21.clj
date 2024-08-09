@@ -60,9 +60,10 @@
   (count-positions (n-steps n (parse i))))
 
 (defn part-2 [n i]
-  ;; positions loop
-  ;; step count get real high (26501365)
+  ;; tile the infinite plan with translational symmetry
+  ;;
   ;; idea 1: treat translationally symmetric points as counts
+  ;;  but we need to be careful that we don't double count the same points
   ;; idea 2: at certain point there are cycle-like things -> the grid beccomes a multiple of an earlier state?
   ;;   but that is really expensive to check
   ;; idea 3: if we can decompose a state into sum of previous states,
