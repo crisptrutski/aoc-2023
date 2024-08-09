@@ -1,6 +1,7 @@
 (ns day1
-  (:require [clojure.string :as str]
-            [utils :as u]))
+  (:require
+   [clojure.string :as str]
+   [utils :as u]))
 
 (def example
   "1abc2
@@ -12,9 +13,9 @@
 
 (defn parse-line [s]
   (parse-long
-    (str
-      (second (re-find #"(\d)" s))
-      (second (re-find #".*(\d)" s)))))
+   (str
+    (u/capture #"(\d)" s)
+    (u/capture #".*(\d)" s))))
 
 (defn part-1 [input]
   (u/sum (map parse-line (u/lines input))))
@@ -42,31 +43,30 @@
    "eight"
    "nine"])
 
+;; Converting to a map is more efficient that searching for index
 (def digit->long (zipmap digits (range)))
 
+;; Overloaded for reading literal or named versions
 (defn parse-digit [s]
   (get digit->long s s))
 
-(defn parse-digit-matching [regex s]
-  (parse-digit (second (re-find regex s))))
+(def pattern
+  (re-pattern (str (str/join "|" digits) "|\\d")))
 
-(def pattern (str "(" (str/join "|" digits) "|\\d)"))
-
-(defn parse-line-2 [l]
-  (parse-long
-    (str
-      (parse-digit-matching (re-pattern pattern) l)
-      (parse-digit-matching (re-pattern (str ".*" pattern)) l))))
+(defn parse-line-2 [line]
+  (let [digits (map parse-digit (re-seq pattern line))]
+    (parse-long
+     (str (first digits)
+          (last digits)))))
 
 (defn part-2 [input]
-  (->> (u/lines input)
-       (map parse-line-2)
-       (reduce +)))
+  (transduce (map parse-line-2) + (u/lines input)))
 
-(println
-  (part-1 example)
-  (part-1 input))
+(comment
+  (println
+   (part-1 example)
+   (part-1 input))
 
-(println
-  (part-2 example-2)
-  (part-2 input))
+  (println
+   (part-2 example-2)
+   (part-2 input)))

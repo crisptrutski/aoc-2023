@@ -1,5 +1,6 @@
 (ns day3
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 ;; state
 
@@ -61,7 +62,7 @@
 
 (comment
   (positions sym? (str/split-lines example))
-  (adjacent-positions sym? (str/split-lines example))
+  (adjacent-positions (str/split-lines example))
   (parse-with-pos digit? parse-long (str/split-lines example)))
 
 (defn part-1 [input]
@@ -93,10 +94,9 @@
          (map (partial apply *))
          (reduce +))))
 
-;;
+(comment
+  (part-1 example)
+  (part-1 input)
 
-(part-1 example)
-(part-1 input)
-
-(part-2 example)
-(part-2 input)
+  (part-2 example)
+  (part-2 input))

@@ -2,15 +2,11 @@
   (:require [clojure.string :as str]
             [clojure.pprint :refer [pprint]]))
 
-(defn tr [& x] (pprint (if (> (count x) 1) (vec x) (first x))) (last x))
-
-(defn tr- "disabled tr" [& x] (last x))
-
 (defn into! [xs ys]
   (reduce conj! xs ys))
 
 (defn index-of [x xs]
-  (first (keep-indexed (fn [i y] (if (= x y) i)) xs)))
+  (first (keep-indexed (fn [i y] (when (= x y) i)) xs)))
 
 (defn every-odd [xs]
   (map first (partition-all 2 xs)))
@@ -65,3 +61,11 @@
 
 (defmacro printing [& body]
   (cons 'do (for [b body] `(println ~b))))
+
+(defn fixed-point [f s]
+  (reduce (fn [lst nxt]
+            (if (= lst nxt)
+              (reduced nxt)
+              nxt))
+          ::none
+          (iterate f s)))

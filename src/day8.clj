@@ -38,7 +38,7 @@
     (case dir
       \L left
       \R right
-      :else (throw (str "Unexpected direction: " dir)))))
+      :else (throw (ex-info (str "Unexpected direction: " dir) {})))))
 
 (defn parse [i]
   (let [[dirs & body] (remove empty? (u/lines i))
@@ -47,15 +47,15 @@
 
 (defn steps-until [adjacency dirs pred start]
   (first (reduce
-           (fn [[len pos] dir]
-             (let [next-len (inc len)
-                   next-pos (step adjacency dir pos)
-                   next [next-len next-pos]]
-               (if (pred next-pos)
-                 (reduced next)
-                 next)))
-           [0 start]
-           (cycle dirs))))
+          (fn [[len pos] dir]
+            (let [next-len (inc len)
+                  next-pos (step adjacency dir pos)
+                  next [next-len next-pos]]
+              (if (pred next-pos)
+                (reduced next)
+                next)))
+          [0 start]
+          (cycle dirs))))
 
 (defn part-1 [i]
   (let [[dirs adjacency] (parse i)]
@@ -81,13 +81,13 @@
         lengths (map ghost-length starts)]
     (reduce u/lcm lengths)))
 
-(u/printing
-  (part-1 example-1)
-  (part-1 example-2)
-  (part-1 input))
+(comment
+  (u/printing
+   (part-1 example-2)
+   (part-1 input))
 
-(println "------")
+  (println "------")
 
-(u/printing
-  (part-2 example-3)
-  (part-2 input))
+  (u/printing
+   (part-2 example-3)
+   (part-2 input)))
