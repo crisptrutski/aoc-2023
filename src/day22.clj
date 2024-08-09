@@ -36,11 +36,11 @@
      [x y z])))
 
 (defn- parse-brick [l]
-  (fill-bricks
-   (mapv (comp #(map parse-long %)
-              #(str/split % #",")
-              str/trim)
-        (str/split l #"~"))))
+  (->> (str/split l #"~")
+       (mapv (comp #(map parse-long %)
+                   #(str/split % #",")
+                   str/trim))
+       fill-bricks))
 
 
 (defn parse [s]
@@ -60,17 +60,9 @@
           bricks))
 
 (defn step
-  "Process a single step in the brick-stacking simulation.
-
-   Takes the current state (surface and supporting information) and a brick,
-   and returns the updated state after placing the brick.
-
-   Args:
-     state: A map containing :surface and :supporting
-     brick: A map containing :id and :bricks (list of coordinates)
-
-   Returns:
-     Updated state map with new surface and supporting information."
+  "Takes the current state (surface and supporting information) and a brick,
+   and returns the updated state after placing the brick, as well as a
+   mapping from each brick to the bricks (if any) that are holding it up."
   [{:keys [surface _supporting] :as state} {:keys [id bricks]}]
   (let [[[_ _ z1] [_ _ z2]] [(first bricks) (last bricks)]
         {support-z :z support-ids :ids}
