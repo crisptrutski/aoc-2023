@@ -76,8 +76,8 @@
 
 (def day20-rx (reverse-and-filter-graph day20-graph "rx"))
 
-(render-graph day20-graph "day20.dot" "day20.png")
-(open-image "day20.png")
+(render-graph day20-graph "nocommit/day20.dot" "nocommit/day20.png")
+(open-image "nocommit/day20.png")
 
-(render-graph day20-rx "day20rx.dot" "day20rx.png")
-(open-image "day20rx.png")
+(render-graph day20-rx "nocommit/day20rx.dot" "nocommit/day20rx.png")
+(open-image "nocommit/day20rx.png")
