@@ -1,8 +1,7 @@
 (ns day22
   (:require
-   [clojure.string :as str]
-   [utils :as u]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [clojure.string :as str]))
 
 (def example
   "1,0,1~1,2,1
@@ -71,14 +70,15 @@
              (cond
                (> surface-z z) {:z surface-z :ids #{surface-id}}
                (= surface-z z) (update acc :ids conj surface-id)
-               :else           acc)))
+               :else acc)))
          {:z 0 :ids #{}}
          bricks)
         z' (+ support-z 1 (Math/abs (- z2 z1)))]
     (-> state
         (update :surface update-surface id z' bricks)
-        (assoc-in [:supporting id] support-ids)))) (defn highest-point [surface x y]
-                                                     (get surface [x y] {:brick nil :z 0}))
+        (assoc-in [:supporting id] support-ids))))
+(defn highest-point [surface x y]
+  (get surface [x y] {:brick nil :z 0}))
 
 (defn supporting-nothing [supporting]
   (->> (keys supporting)
@@ -90,24 +90,24 @@
 (defn step
   [{:keys [surface supporting]}
    {:keys [id bricks]}]
-  (let [support (reduce
-                 (fn [{:keys [z ids] :as acc} [x y _]]
-                   (let [{surface-id :id surface-z :z} (highest-point surface x y)]
-                     (cond
-                       (> surface-z z) {:z surface-z :ids [surface-id]}
-                       (= surface-z z) {:z surface-z :ids (conj ids surface-id)}
-                       :else           acc)))
-                 {:z 0 :ids []}
-                 bricks)
-        z' (+ (:z support)
-              1
-              (Math/abs (- (last (last bricks))
-                           (last (first bricks)))))
+  (let [support  (reduce
+                  (fn [{:keys [z ids] :as acc} [x y _]]
+                    (let [{surface-id :id surface-z :z} (highest-point surface x y)]
+                      (cond
+                        (> surface-z z) {:z surface-z :ids [surface-id]}
+                        (= surface-z z) {:z surface-z :ids (conj ids surface-id)}
+                        :else acc)))
+                  {:z 0 :ids []}
+                  bricks)
+        z'       (+ (:z support)
+                    1
+                    (Math/abs (- (last (last bricks))
+                                 (last (first bricks)))))
         surface' (reduce (fn [m [x y _]]
                            (assoc m [x y] {:id id :z z'}))
                          surface
                          bricks)]
-    {:surface surface'
+    {:surface    surface'
      :supporting (assoc supporting id (set (:ids support)))}))
 
 (defn- support-map [s]
@@ -121,9 +121,9 @@
   (count (supporting-nothing (support-map s))))
 
 (defn- cascade-size [supporting starting]
-  (loop [max-depth 20000
+  (loop [max-depth     20000
          disintegrated #{starting}
-         remaining (remove (comp disintegrated first) supporting)]
+         remaining     (remove (comp disintegrated first) supporting)]
     (if (zero? max-depth)
       -1
       (if-let [non-supporting (not-empty (into #{}

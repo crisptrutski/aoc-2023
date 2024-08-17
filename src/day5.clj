@@ -91,7 +91,7 @@
 
 (defn part-1 [input]
   (let [[first-line & remaining-lines] (str/split-lines input)
-        seeds (parse-seeds first-line)
+        seeds    (parse-seeds first-line)
         mappings (parse-mappings remaining-lines)]
     (reduce min (reduce (fn [ids mapping] (map mapping ids)) seeds mappings))))
 
@@ -133,8 +133,8 @@
 
 (defn part-2 [input]
   (let [[first-line & remaining-lines] (str/split-lines input)
-        initial? (seed-checker first-line)
-        mappings (parse-reverse-mappings remaining-lines)
+        initial?     (seed-checker first-line)
+        mappings     (parse-reverse-mappings remaining-lines)
         map-to-start #(reduce (fn [id rev-map] (rev-map id)) % (reverse mappings))]
     (->> (range)
          (filter (comp initial? map-to-start))

@@ -1,6 +1,6 @@
 (ns day21
   (:require
-   [utils :as u]))
+   [utils]))
 
 (def example
   "...........
@@ -27,7 +27,7 @@
 
 (defn- positions [needle cells]
   (for [[i j v] cells
-        :when   (= v needle)]
+        :when (= v needle)]
     [i j]))
 
 (defn parse [i]

@@ -1,6 +1,5 @@
 (ns utils
-  (:require [clojure.string :as str]
-            [clojure.pprint :refer [pprint]]))
+  (:require [clojure.string :as str]))
 
 (defn into! [xs ys]
   (reduce conj! xs ys))

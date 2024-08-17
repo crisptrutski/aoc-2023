@@ -74,8 +74,8 @@
 (defn- next-steps
   "Advance an explorer to all his potential next states."
   [{:keys [dist left cell]}]
-  (for [pos   (moves cell)
-        :let  [cell' (->cell left pos)]
+  (for [pos (moves cell)
+        :let [cell' (->cell left pos)]
         :when cell']
     {:dist (inc dist)
      :left (dissoc left pos)

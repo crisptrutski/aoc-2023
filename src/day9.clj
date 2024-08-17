@@ -13,7 +13,7 @@
   (map parse-long (u/split-ws line)))
 
 (defn next-digit [row]
-  (loop [row row
+  (loop [row         row
          last-digits (list (last row))]
     (let [differences (map - (rest row) row)]
       (if (every? zero? differences)
@@ -27,7 +27,7 @@
        (u/sum)))
 
 (defn next-digit-2 [row]
-  (loop [row row
+  (loop [row            row
          initial-digits (list (first row))]
     (let [differences (map - (rest row) row)]
       (if (every? zero? differences)

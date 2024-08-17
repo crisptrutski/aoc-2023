@@ -46,13 +46,13 @@
 
 (defn parse-line [l]
   (let [[df dests] (map str/trim (str/split l #"->"))
-        t          (case (first df)
-                     \% :flip
-                     \& :conj
-                     :none)
-        nm         (if (= :none t)
-                     df
-                     (subs df 1))]
+        t  (case (first df)
+             \% :flip
+             \& :conj
+             :none)
+        nm (if (= :none t)
+             df
+             (subs df 1))]
     {:type         t
      :name         nm
      :destinations (map str/trim (str/split dests #","))
@@ -107,8 +107,8 @@
     {:pulses []
      :nodes  nodes
      :counts cnts}
-    (let [p                      (first pulses)
-          to                     (:to p)
+    (let [p  (first pulses)
+          to (:to p)
           [new-state new-pulses] (react (get nodes to) p)]
       {:pulses (concat (rest pulses) new-pulses)
        :nodes  (assoc-in nodes [to :state] new-state)

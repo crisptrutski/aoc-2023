@@ -52,9 +52,9 @@
 
 (defn rank-hand-2 [hand]
   (let [hand-without-J (remove #{\J} hand)
-        num-J (- 5 (count hand-without-J))
+        num-J          (- 5 (count hand-without-J))
         [fc sc] (u/sort-desc (vals (frequencies hand-without-J)))
-        fcj (+ num-J (or fc 0))]
+        fcj            (+ num-J (or fc 0))]
     (score-hand fcj sc)))
 
 (defn rank-bid-2 [[hand score]]

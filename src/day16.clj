@@ -111,7 +111,7 @@
 
 (defn- activations-fixed-point [step-once state]
   (loop [state state]
-    (let [next-state (step-once state)
+    (let [next-state      (step-once state)
           old-activations (first state)
           new-activations (first next-state)]
       (if (= old-activations new-activations)

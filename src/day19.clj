@@ -191,7 +191,7 @@ hdj{m>838:A,pv}
                pred
                curr-cs
                target]))
-            ;; constraints, target
+          ;; constraints, target
           [{} nil nil]
           rs))))
 
@@ -220,11 +220,11 @@ hdj{m>838:A,pv}
         (fn [acc [target cs]]
           (merge-with concat
                       acc
-                        ;; TODO we only need to register stuff going to A really
+                      ;; TODO we only need to register stuff going to A really
                       nil))
         target->routes
         inbound)
-        ;; next outbound
+       ;; next outbound
        nil))))
 
 (defn routes->disjoint
@@ -248,7 +248,7 @@ hdj{m>838:A,pv}
          (map count-cs)
          (reduce +)))
 
-;; we are calculating how many combinations satisfy *all* the rules
+  ;; we are calculating how many combinations satisfy *all* the rules
   ;; that's obviously not what we want (as there are none)
   ;; ... oh
   ;; we need to figure out the chains of rules which need to be combined

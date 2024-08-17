@@ -49,13 +49,13 @@
 (defn calc-round [[total-count upcoming-counts] next-card]
   (let [[winning actual] next-card
         [this-copies & following-counts] (or upcoming-counts [0])
-        this-count (inc this-copies)
-        additional-cards (count (keep (set winning) actual))
+        this-count        (inc this-copies)
+        additional-cards  (count (keep (set winning) actual))
         additional-counts (repeat additional-cards this-count)
-        total-count (+ total-count this-count)
-        upcoming-counts (map-all (fnil + 0 0)
-                                 following-counts
-                                 additional-counts)]
+        total-count       (+ total-count this-count)
+        upcoming-counts   (map-all (fnil + 0 0)
+                                   following-counts
+                                   additional-counts)]
     [total-count upcoming-counts]))
 
 (defn part-2 [input]

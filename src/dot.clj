@@ -5,15 +5,14 @@
    [clojure.walk :as walk]
    [day20])
   (:import
-   [clojure.lang PersistentQueue]
-   (java.awt Desktop)
-   (java.io File)))
+   (clojure.lang PersistentQueue)
+   (java.awt Desktop)))
 
 (defn graph-to-dot [graph-map]
   (str "digraph G {\n"
        (str/join "\n"
                  (for [[node neighbors] graph-map
-                       neighbor         neighbors]
+                       neighbor neighbors]
                    (format "  \"%s\" -> \"%s\";" node neighbor)))
        "\n}"))
 

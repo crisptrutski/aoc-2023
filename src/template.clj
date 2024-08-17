@@ -1,6 +1,4 @@
-(ns template
-  (:require
-   [utils :as u]))
+(ns template)
 
 (def example
   "")

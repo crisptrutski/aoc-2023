@@ -1,7 +1,7 @@
 (ns day25
   (:require
-   [clojure.string :as str]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [clojure.string :as str]))
 
 (def example
   "jqt: rhn xhk nvd
@@ -61,16 +61,16 @@ frs: qnr lhk lsr")
 
 (defn combinations [items n]
   (cond
-    (= n 0)        '(())
+    (= n 0) '(())
     (empty? items) '()
-    :else          (concat
-                    (map #(cons (first items) %) (combinations (rest items) (dec n)))
-                    (combinations (rest items) n))))
+    :else (concat
+           (map #(cons (first items) %) (combinations (rest items) (dec n)))
+           (combinations (rest items) n))))
 
 (defn find-three-edge-cut [graph]
   (let [edges (vec (for [[u conns] graph
-                         v         conns
-                         :when     (< (compare u v) 0)]
+                         v conns
+                         :when (< (compare u v) 0)]
                      [u v]))]
     (first
      (filter
@@ -82,8 +82,8 @@ frs: qnr lhk lsr")
 
 (defn contract-edge [graph u v]
   (let [merged-node (str u "-" v)
-        neighbors (-> (set/union (get graph u) (get graph v))
-                      (disj u v))]
+        neighbors   (-> (set/union (get graph u) (get graph v))
+                        (disj u v))]
     (as-> graph g
       (dissoc g u v)
       (assoc g merged-node neighbors)
@@ -111,10 +111,10 @@ frs: qnr lhk lsr")
     [u v]))
 
 (defn find-three-edge-cut [graph]
-  (loop [attempts 0
+  (loop [attempts     0
          max-attempts (* (count graph) (count graph) (Math/log (count graph)))]
     (if (>= attempts max-attempts)
-      nil  ; No three-edge cut found after many attempts
+      nil                                                   ; No three-edge cut found after many attempts
       (let [[part1 part2] (karger-min-cut graph)
             cut-edges (find-cut-edges graph [part1 part2])]
         (if (= (count cut-edges) 3)

@@ -51,7 +51,7 @@
           (fn [[len pos] dir]
             (let [next-len (inc len)
                   next-pos (step adjacency dir pos)
-                  next [next-len next-pos]]
+                  next     [next-len next-pos]]
               (if (pred next-pos)
                 (reduced next)
                 next)))
@@ -76,10 +76,10 @@
 
 (defn part-2 [i]
   (let [[dirs adjacency] (parse i)
-        starts (filter (u/ending-with "A") (keys adjacency))
-        terminal? (u/ending-with "Z")
+        starts       (filter (u/ending-with "A") (keys adjacency))
+        terminal?    (u/ending-with "Z")
         ghost-length (partial steps-until adjacency dirs terminal?)
-        lengths (map ghost-length starts)]
+        lengths      (map ghost-length starts)]
     (reduce u/lcm lengths)))
 
 (comment

@@ -79,8 +79,8 @@
   ;; make sure that i1 <= i2 and j1 <= j2
   ;; we already have i1 <= i2 because we scan the grid for galaxies in row order
   (let [[j1 j2] (sort [j1 j2])
-        dis (range 1 (inc (- i2 i1)))
-        djs (range 1 (inc (- j2 j1)))
+        dis    (range 1 (inc (- i2 i1)))
+        djs    (range 1 (inc (- j2 j1)))
         i-dist (u/sum (map #(if (blank-row? (+ i1 %)) time 1) dis))
         j-dist (u/sum (map #(if (blank-col? (+ j1 %)) time 1) djs))]
     (+ i-dist j-dist)))
@@ -89,11 +89,11 @@
   ([i]
    (part-2 1000000 i))
   ([time i]
-   (let [grid (u/lines i)
-         galaxies (find-galaxies grid)
+   (let [grid       (u/lines i)
+         galaxies   (find-galaxies grid)
          blank-row? (set (blank-rows grid))
          blank-col? (set (blank-rows (transpose grid)))
-         pos-pairs (galaxy-pairs galaxies)]
+         pos-pairs  (galaxy-pairs galaxies)]
 
      #_(clojure.pprint/pprint
         (into (sorted-map)

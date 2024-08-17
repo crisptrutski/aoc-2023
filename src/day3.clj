@@ -66,7 +66,7 @@
   (parse-with-pos digit? parse-long (str/split-lines example)))
 
 (defn part-1 [input]
-  (let [lines (str/split-lines input)
+  (let [lines    (str/split-lines input)
         touched? (adjacent-positions (positions sym? lines))]
     (->> (parse-with-pos digit? parse-long lines)
          (keep (fn [[num positions]]
@@ -80,7 +80,7 @@
   (positions gear? (str/split-lines example)))
 
 (defn part-2 [input]
-  (let [lines (str/split-lines input)
+  (let [lines        (str/split-lines input)
         nums-and-pos (parse-with-pos digit? parse-long lines)]
     (->> (positions gear? lines)
          (map (fn [[x y]]

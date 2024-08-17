@@ -181,9 +181,9 @@
                      (map-indexed
                       (fn [x c]
                         (cond
-                          (= \S c)        (infer-start grid start)
+                          (= \S c) (infer-start grid start)
                           (visited [y x]) c
-                          :else           \.)))
+                          :else \.)))
                      vec)))
              vec)
         (recur visited (map strip-from next))))))
@@ -202,9 +202,9 @@
             (fn [[x row-acc state] c]
               [(inc x)
                (conj row-acc (cond
-                               (not= \. c)   c
+                               (not= \. c) c
                                (zero? state) \.
-                               :else         \I))
+                               :else \I))
                (bit-xor state (tweak c 0))])
             [0 [] 0]
             row)))

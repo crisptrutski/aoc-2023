@@ -55,7 +55,7 @@
                  (let [[label focal-length] (str/split s #"\-|=")
                        focal-length (when focal-length
                                       (parse-long focal-length))
-                       box (hsh label)]
+                       box          (hsh label)]
                    (update boxes box
                            (fn [lenses]
                              (if (some #{\=} s)

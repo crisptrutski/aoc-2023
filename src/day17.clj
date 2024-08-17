@@ -89,7 +89,7 @@
         w       (count (first grid))
         pos'    (travel pos new-dir)
         cost    (get-in grid pos')
-        [y x]   pos'
+        [y x] pos'
         repeat' (if (= dir new-dir) (inc repeat) 0)]
     (when (and (>= x 0) (< x w)
                (>= y 0) (< y h)
