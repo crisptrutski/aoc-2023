@@ -64,8 +64,8 @@ frs: qnr lhk lsr")
     (= n 0)        '(())
     (empty? items) '()
     :else          (concat
-           (map #(cons (first items) %) (combinations (rest items) (dec n)))
-           (combinations (rest items) n))))
+                    (map #(cons (first items) %) (combinations (rest items) (dec n)))
+                    (combinations (rest items) n))))
 
 (defn find-three-edge-cut [graph]
   (let [edges (vec (for [[u conns] graph

@@ -30,10 +30,10 @@
           "no diagonals")
 
   (into (sorted-set)
-   (for [x (range-incl x1 x2)
-         y (range-incl y1 y2)
-         z (range-incl z1 z2)]
-     [x y z])))
+        (for [x (range-incl x1 x2)
+              y (range-incl y1 y2)
+              z (range-incl z1 z2)]
+          [x y z])))
 
 (defn- parse-brick [l]
   (->> (str/split l #"~")
@@ -41,7 +41,6 @@
                    #(str/split % #",")
                    str/trim))
        fill-bricks))
-
 
 (defn parse [s]
   (mapv parse-brick (str/split-lines s)))
@@ -78,8 +77,8 @@
         z' (+ support-z 1 (Math/abs (- z2 z1)))]
     (-> state
         (update :surface update-surface id z' bricks)
-        (assoc-in [:supporting id] support-ids))))(defn highest-point [surface x y]
-  (get surface [x y] {:brick nil :z 0}))
+        (assoc-in [:supporting id] support-ids)))) (defn highest-point [surface x y]
+                                                     (get surface [x y] {:brick nil :z 0}))
 
 (defn supporting-nothing [supporting]
   (->> (keys supporting)
@@ -105,7 +104,7 @@
               (Math/abs (- (last (last bricks))
                            (last (first bricks)))))
         surface' (reduce (fn [m [x y _]]
-                            (assoc m [x y] {:id id :z z'}))
+                           (assoc m [x y] {:id id :z z'}))
                          surface
                          bricks)]
     {:surface surface'

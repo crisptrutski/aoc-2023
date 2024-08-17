@@ -82,7 +82,6 @@
         lengths (map ghost-length starts)]
     (reduce u/lcm lengths)))
 
-
 (comment
   (u/printing
    (part-1 example-1)

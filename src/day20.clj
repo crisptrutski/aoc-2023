@@ -77,10 +77,10 @@
 (defn- parse [s]
   {:pulses []
    :nodes  (notify-connections
-           (reduce (fn [m x]
-                     (assoc m (:name x) x))
-                   {}
-                   (map parse-line (u/lines s))))})
+            (reduce (fn [m x]
+                      (assoc m (:name x) x))
+                    {}
+                    (map parse-line (u/lines s))))})
 
 (defn send-pulses [from destinations pulse]
   (map (fn [d] {:from from :to d :pulse pulse})
@@ -141,7 +141,7 @@
       (if-let [p (first (:pulses s))]
         (do #_(when (= "rx" (:to p))
                 (prn p (hash (:nodes s))))
-            (if (= {:to "rx" :pulse false} (select-keys p [:to :pulse]))
+         (if (= {:to "rx" :pulse false} (select-keys p [:to :pulse]))
            pushes
            (recur pushes (step s))))
         (recur (inc pushes)

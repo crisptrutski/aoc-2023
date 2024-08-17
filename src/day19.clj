@@ -80,8 +80,6 @@ hdj{m>838:A,pv}
          (map (comp sum-part second))
          (reduce +))))
 
-
-
 (defn pred->range [r]
   (if-not r
     ["x" {:min 1 :max max-range}]
@@ -110,11 +108,11 @@ hdj{m>838:A,pv}
        (remove nil?)
        (sort-by :min)
        (reduce
-         (fn [[acc {curr-mn :min curr-mx :max :as curr}] {mn :min mx :max :as nxt}]
-           (if (<= mn curr-mx)
-             [acc {:min curr-mn :max (max curr-mx mx)}]
-             [(conj acc curr) nxt]))
-         [[] {:min 0 :max 0}])
+        (fn [[acc {curr-mn :min curr-mx :max :as curr}] {mn :min mx :max :as nxt}]
+          (if (<= mn curr-mx)
+            [acc {:min curr-mn :max (max curr-mx mx)}]
+            [(conj acc curr) nxt]))
+        [[] {:min 0 :max 0}])
        (apply conj)
        rest
        (remove nil?)
@@ -153,12 +151,12 @@ hdj{m>838:A,pv}
 
 (defn merge-constraints [xs ys]
   (union-constraints
-    (for [{mnx :min mxx :max} (or xs [{:min 1 :max max-range}])
-          {mny :min mxy :max} (or ys [{:min 1 :max max-range}])
-          :when (and (<= mnx mxy)
-                     (<= mny mxx))]
-      {:min (max mnx mny)
-       :max (min mxx mxy)})))
+   (for [{mnx :min mxx :max} (or xs [{:min 1 :max max-range}])
+         {mny :min mxy :max} (or ys [{:min 1 :max max-range}])
+         :when (and (<= mnx mxy)
+                    (<= mny mxx))]
+     {:min (max mnx mny)
+      :max (min mxx mxy)})))
 
 (defn- count-range [{mn :min mx :max}]
   (max 0 (inc (- mx mn))))
@@ -176,26 +174,26 @@ hdj{m>838:A,pv}
 (defn ranges->dispatches [rs]
   (mapv (comp vec rest rest)
         (rest
-          (reductions
-            (fn [[cs last-tc _ _] {:keys [pred target]}]
-              (let [last-inv   (invert-constraint last-tc)
-                    curr-range (pred->range pred)
-                    prior      (when last-inv
-                                 (update cs
-                                         (first last-inv)
-                                         #(merge-constraints %
-                                                             (second last-inv))))
-                    curr-cs    (update prior
-                                       (first curr-range)
+         (reductions
+          (fn [[cs last-tc _ _] {:keys [pred target]}]
+            (let [last-inv   (invert-constraint last-tc)
+                  curr-range (pred->range pred)
+                  prior      (when last-inv
+                               (update cs
+                                       (first last-inv)
                                        #(merge-constraints %
-                                                           [(second curr-range)]))]
-                [prior
-                 pred
-                 curr-cs
-                 target]))
+                                                           (second last-inv))))
+                  curr-cs    (update prior
+                                     (first curr-range)
+                                     #(merge-constraints %
+                                                         [(second curr-range)]))]
+              [prior
+               pred
+               curr-cs
+               target]))
             ;; constraints, target
-            [{} nil nil]
-            rs))))
+          [{} nil nil]
+          rs))))
 
 (defn step [[target->constraints constraints->targets] rules]
   (merge-with + target->constraints
@@ -218,23 +216,21 @@ hdj{m>838:A,pv}
     (if-not (seq inbound)
       target->routes
       (recur
-        (reduce
-          (fn [acc [target cs]]
-            (merge-with concat
-                        acc
+       (reduce
+        (fn [acc [target cs]]
+          (merge-with concat
+                      acc
                         ;; TODO we only need to register stuff going to A really
-                        nil))
-          target->routes
-          inbound)
+                      nil))
+        target->routes
+        inbound)
         ;; next outbound
-        nil))))
+       nil))))
 
 (defn routes->disjoint
   "Given a seq of constraint corresponding to all the routes somewhere, break
   them up into disjoint sets so that we can calculate the viable combinations."
   [routes-cs])
-
-
 
 (defn part-2 [i]
   ;; from in, use reductions to build the revised constraints + jump target
@@ -250,11 +246,9 @@ hdj{m>838:A,pv}
          (flappy get "A")
          routes->disjoint
          (map count-cs)
-         (reduce +)
-         ))
+         (reduce +)))
 
-
-  ;; we are calculating how many combinations satisfy *all* the rules
+;; we are calculating how many combinations satisfy *all* the rules
   ;; that's obviously not what we want (as there are none)
   ;; ... oh
   ;; we need to figure out the chains of rules which need to be combined

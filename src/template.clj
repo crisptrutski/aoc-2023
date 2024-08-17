@@ -7,13 +7,9 @@
 
 (def input nil #_(slurp "DAY.txt"))
 
-
 (defn part-1 [i])
 
-
-
 (defn part-2 [i])
-
 
 (comment
   (part-1 example)
