@@ -1,5 +1,6 @@
 (ns utils
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 (defn pp [x] #p x)
 

@@ -233,21 +233,6 @@ hdj{m>838:A,pv}
   [routes-cs])
 
 (defn part-2 [i]
-  ;; from in, use reductions to build the revised constraints + jump target
-  ;; once we reach A, record the number of combinations.
-  ;; sum up all these combinations.
-  (let [[workflows _] (str/split i #"\n\n")]
-    (->> (str/split-lines workflows)
-         (map parse-workflow)
-         (into {} (map (juxt :name :rules)))
-         (flappy update-vals ranges->dispatches)
-         ;clojure.pprint/pprint
-         infer-sinks
-         (flappy get "A")
-         routes->disjoint
-         (map count-cs)
-         (reduce +)))
-
   ;; we are calculating how many combinations satisfy *all* the rules
   ;; that's obviously not what we want (as there are none)
   ;; ... oh
