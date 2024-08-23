@@ -1,6 +1,8 @@
 (ns utils
   (:require [clojure.string :as str]))
 
+(defn pp [x] #p x)
+
 (defn into! [xs ys]
   (reduce conj! xs ys))
 
