@@ -1,5 +1,7 @@
 (ns day19
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]
+   [utils :as u]))
 
 (def example
   "px{a<2006:qkq,m>2090:A,rfg}
@@ -28,9 +30,9 @@ hdj{m>838:A,pv}
   (if (nil? c)
     (constantly true)
     (let [[_ k c v] (re-matches #"(\w)(.)(\d+)" c)
-          k   (keyword k)
-          cmp (case (first c) \< < \= = \> >)
-          v   (parse-long v)]
+          k         (keyword k)
+          cmp       (case (first c) \< < \= = \> >)
+          v         (parse-long v)]
       (fn [p]
         (cmp (get p k) v)))))
 
@@ -80,175 +82,99 @@ hdj{m>838:A,pv}
          (map (comp sum-part second))
          (reduce +))))
 
-(defn pred->range [r]
-  (if-not r
-    ["x" {:min 1 :max max-range}]
-    (let [c (second r)
-          n (parse-long (subs r 2))]
-      [(first r)
-       (case c
-         \> {:min (inc n) :max max-range}
-         \< {:min 1 :max (dec n)}
-         \= {:min n :max n})])))
+;;;
 
-(defn invert-constraint [r]
-  ;; currently gets a range, not a raw constraint
+(def ^:private full-range {:min 1 :max max-range})
+
+(def ^:private full-cube (zipmap [:x :m :a :s] (repeat full-range)))
+
+(defn pred->range [r]
   (when r
     (let [c (second r)
           n (parse-long (subs r 2))]
-      [(first r)
-       (case c
-         \> [{:min 1 :max n}]
-         \< [{:min n :max max-range}]
-         \= [{:min 1 :max (dec n)}
-             {:min (inc n) :max max-range}])])))
+      (case c
+        \> {:min (inc n) :max max-range}
+        \< {:min 1 :max (dec n)}
+        \= {:min n :max n}))))
 
-(defn- union-constraints [cs]
-  (->> cs
-       (remove nil?)
-       (sort-by :min)
-       (reduce
-        (fn [[acc {curr-mn :min curr-mx :max :as curr}] {mn :min mx :max :as nxt}]
-          (if (<= mn curr-mx)
-            [acc {:min curr-mn :max (max curr-mx mx)}]
-            [(conj acc curr) nxt]))
-        [[] {:min 0 :max 0}])
-       (apply conj)
-       rest
-       (remove nil?)
-       vec))
+(defn invert-constraint [r]
+  (when r
+    (let [c (second r)
+          n (parse-long (subs r 2))]
+      (case c
+        \> [{:min 1 :max n}]
+        \< [{:min n :max max-range}]
+        \= [{:min 1 :max (dec n)}
+            {:min (inc n) :max max-range}]))))
 
-(defn- intersect-constraints [cs]
-  (reduce (fn [acc x]
-            {:min (max (:min acc) (:min x))
-             :max (min (:max acc) (:max x))})
-          {:min 1 :max max-range}
-          cs))
+(defn merge-range [r1 r2]
+  (cond (not r1) r2
+        (not r2) r1
+        :else
+        {:min (max (:min r1) (:min r2))
+         :max (min (:max r1) (:max r2))}))
 
-(defn- intersect [xmasses]
-  (zipmap "xmas"
-          (for [k "xmas"]
-            (intersect-constraints (keep #(% k) xmasses)))))
+(defn merge-constraints [cube k r]
+  (if-not r
+    cube
+    (update cube k (partial merge-range r))))
 
-(comment
-  (union-constraints [{:min 1 :max 10}
-                      {:min 8 :max 12}
-                      {:min 14 :max 14}
-                      {:min 20 :max 300}
-                      {:min 30 :max 40}])
+(defn- steps-from [node->rules node cube]
+  (let [rules (node->rules node)]
+    (second
+     (reduce
+      (fn [[cubes dispatches] {:keys [k target valid invalid]}]
+        [(mapcat (fn [i] (map #(merge-constraints % k i) cubes)) invalid)
+         (into dispatches (map (fn [cube] [target (merge-constraints cube k valid)]) cubes))])
+      [[cube] []]
+      rules))))
 
-  (union-constraints [{:min 1 :max 10}
-                      {:min 8 :max 12}
-                      {:min 14 :max 14}
-                      {:min 20 :max 300}
-                      {:min 30 :max 40}])
+(defn- terminal-cubes
+  "Given a network, return a list of all the configuration hypercubes that reach A from in."
+  [node->rules]
+  (loop [heads [["in" full-cube]]
+         tails []
+         seen #{}]
+    (if (empty? heads)
+      tails
+      (let [nxt (remove seen (mapcat (partial apply steps-from node->rules) heads))]
+        (recur
+         (remove (comp #{"A"} first) nxt)
+         (into tails (map second (filter (comp #{"A"} first) nxt)))
+         (into seen nxt))))))
 
-  (intersect-constraints [{:min 1 :max 20}
-                          {:min 15 :max 30}])
+(defn parse-rule-pred [{:keys [pred] :as m}]
+  (if-not pred
+    m
+    (assoc m
+           :k (keyword (str (first pred)))
+           :valid (pred->range pred)
+           :invalid (invert-constraint pred))))
 
-  (intersect [{\x {:min 1 :max 20}}
-              {\a {:min 15 :max 30}}]))
-
-(defn merge-constraints [xs ys]
-  (union-constraints
-   (for [{mnx :min mxx :max} (or xs [{:min 1 :max max-range}])
-         {mny :min mxy :max} (or ys [{:min 1 :max max-range}])
-         :when (and (<= mnx mxy)
-                    (<= mny mxx))]
-     {:min (max mnx mny)
-      :max (min mxx mxy)})))
+(defn parse-preds [node->rules]
+  (update-vals node->rules #(map parse-rule-pred %)))
 
 (defn- count-range [{mn :min mx :max}]
-  (max 0 (inc (- mx mn))))
-
-(defn- count-ranges [rs]
-  (if-not rs
-    max-range
-    (reduce + (map count-range rs))))
+  (if-not mn
+    0
+    (max 0 (inc (- mx mn)))))
 
 (defn- count-cs [c->cs]
-  (->> (map c->cs "xmas")
-       (map count-ranges)
+  (->> (map c->cs (map (comp keyword str) "xmas"))
+       (map count-range)
        (reduce *)))
 
-(defn ranges->dispatches [rs]
-  (mapv (comp vec rest rest)
-        (rest
-         (reductions
-          (fn [[cs last-tc _ _] {:keys [pred target]}]
-            (let [last-inv   (invert-constraint last-tc)
-                  curr-range (pred->range pred)
-                  prior      (when last-inv
-                               (update cs
-                                       (first last-inv)
-                                       #(merge-constraints %
-                                                           (second last-inv))))
-                  curr-cs    (update prior
-                                     (first curr-range)
-                                     #(merge-constraints %
-                                                         [(second curr-range)]))]
-              [prior
-               pred
-               curr-cs
-               target]))
-          ;; constraints, target
-          [{} nil nil]
-          rs))))
-
-(defn step [[target->constraints constraints->targets] rules]
-  (merge-with + target->constraints
-              (into {}
-                    (for [[cs target] constraints->targets]
-                      nil))))
-
-(defn flappy
-  "Flip and apply - cycles the last argument to the first position."
-  [f & xs]
-  (apply f (last xs) (butlast xs)))
-
-(defn- infer-sinks
-  "Given a map from every entry point to all the rules that dispatch from it,
-  return a map of the final destinations to the combined constraints of all
-  the routes which lead to it."
-  [in->dispatches]
-  (loop [target->routes {}
-         inbound        [["in" nil]]]
-    (if-not (seq inbound)
-      target->routes
-      (recur
-       (reduce
-        (fn [acc [target cs]]
-          (merge-with concat
-                      acc
-                      ;; TODO we only need to register stuff going to A really
-                      nil))
-        target->routes
-        inbound)
-       ;; next outbound
-       nil))))
-
-(defn routes->disjoint
-  "Given a seq of constraint corresponding to all the routes somewhere, break
-  them up into disjoint sets so that we can calculate the viable combinations."
-  [routes-cs])
-
 (defn part-2 [i]
-  ;; we are calculating how many combinations satisfy *all* the rules
-  ;; that's obviously not what we want (as there are none)
-  ;; ... oh
-  ;; we need to figure out the chains of rules which need to be combined
-  ;; and sum over all those chains
-  ;; remembering to take the complement of the rules we must pass over
-  #_(let [[workflows _] (str/split i #"\n\n")]
-      (->> (str/split-lines workflows)
-           (map parse-workflow)
-           (map :rules)
-           (mapcat (partial keep :pred))
-           (group-by first)
-           (vals)
-           (mapv #(count-range (collapse-ranges (map pred->range %))))
-           prn
-           (reduce *))))
+  (let [[workflows _] (str/split i #"\n\n")]
+    (->> (str/split-lines workflows)
+         (map parse-workflow)
+         (into {} (map (juxt :name :rules)))
+         parse-preds
+         terminal-cubes
+         (map count-cs)
+         (reduce +)
+         u/pp))
+  true)
 
 (comment
   (part-1 example)
