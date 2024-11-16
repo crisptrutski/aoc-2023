@@ -5,3 +5,4 @@
 .idea
 .lsp/.cache/
 .nrepl-port
+.clj-kondo/
