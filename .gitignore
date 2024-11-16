@@ -1,9 +1,10 @@
 *.iml
 *.txt
-.clj-kondo/.cache/
-.cpcache/
-.idea
-.lsp/.cache/
-.nrepl-port
-.clj-kondo/
-.calva/
+*/.clj-kondo/.cache/
+*/.cpcache/
+*/.idea
+*/.lsp/.cache/
+*/.nrepl-port
+*/.clj-kondo/
+*/.calva/
+*/nocommit/
