@@ -9,7 +9,7 @@
    KTJJT 220
    QQQJA 483")
 
-(defonce input (slurp "7.txt"))
+(defonce input (u/data-file 7))
 
 (defn parse-line [s]
   (-> (u/split-ws s)

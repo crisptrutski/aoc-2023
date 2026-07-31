@@ -9,7 +9,7 @@
    a1b2c3d4e5f
    treb7uchet")
 
-(def input (slurp "1.txt"))
+(def input (u/data-file 1))
 
 (defn parse-line [s]
   (parse-long

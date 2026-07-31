@@ -1,8 +1,12 @@
 (ns utils
   (:require
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [hashp.core]))
 
 (defn pp [x] #p x)
+
+(defn data-file [n]
+  (slurp (str "resources/2023/" n ".txt")))
 
 (defn into! [xs ys]
   (reduce conj! xs ys))

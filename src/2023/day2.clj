@@ -1,6 +1,7 @@
 (ns day2
   (:require
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [utils :as u]))
 
 (def example
   (str
@@ -10,7 +11,7 @@
    "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red\n"
    "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green\n"))
 
-(def input (slurp "2.txt"))
+(def input (u/data-file 2))
 
 (def game-num-pattern #"Game (\d+)")
 

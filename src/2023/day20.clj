@@ -10,7 +10,6 @@
    %c -> inv
    &inv -> a")
 
-<<<<<<< HEAD
 (def example-2
   "broadcaster -> a
    %a -> inv, con
@@ -18,7 +17,7 @@
    %b -> con
    &con -> output")
 
-(def input (slurp "20.txt"))
+(def input (u/data-file 20))
 
 ;; flip-flop - %
 ;; has on/off state, starts off

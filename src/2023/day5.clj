@@ -1,6 +1,7 @@
 (ns day5
   (:require
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [utils :as u]))
 
 (def example
   "seeds: 79 14 55 13
@@ -37,7 +38,7 @@
    60 56 37
    56 93 4")
 
-(def input (slurp "5.txt"))
+(def input (u/data-file 5))
 
 (defn parse-label [s]
   (drop 1 (re-find #"(\w+)-to-(\w+)" s)))

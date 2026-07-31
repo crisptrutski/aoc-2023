@@ -1,6 +1,7 @@
 (ns day3
   (:require
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [utils :as u]))
 
 ;; state
 
@@ -22,7 +23,7 @@
    ...$.*....
    .664.598..")
 
-(def input (slurp "3.txt"))
+(def input (u/data-file 3))
 
 (defn digit? [c] (<= 48 (int c) 57))
 
