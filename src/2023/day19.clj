@@ -22,7 +22,7 @@ hdj{m>838:A,pv}
 {x=2461,m=1339,a=466,s=291}
 {x=2127,m=1623,a=2188,s=1013}")
 
-(def input (try (slurp "19.txt") (catch Exception _)))
+(def input (u/data-file 19))
 
 (def max-range 4000)
 
@@ -172,9 +172,7 @@ hdj{m>838:A,pv}
          parse-preds
          terminal-cubes
          (map count-cs)
-         (reduce +)
-         u/pp))
-  true)
+         (reduce +))))
 
 (comment
   (part-1 example)
